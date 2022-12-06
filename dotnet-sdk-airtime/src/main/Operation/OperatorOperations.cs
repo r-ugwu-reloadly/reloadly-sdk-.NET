@@ -16,9 +16,11 @@ namespace Reloadly.Airtime.Operation
     {
         private const string Endpoint = "operators";
         private const string PATH_SEGMENT_FX_RATE = "fx-rate";
+        private const string PATH_SEGMENT_COMMISSIONS = "commissions";
         private const string PATH_SEGMENT_COUNTRIES = "countries";
         private const string PATH_SEGMENT_AUTO_DETECT = "auto-detect";
         private const string PATH_SEGMENT_AUTO_DETECT_PHONE = "phone";
+        private const string PATH_SEGMENT_MNP_LOOKUP = "mnp-lookup";
 
         public OperatorOperations(
             IReloadlyHttpClient httpClient, Uri baseUri,
@@ -105,6 +107,39 @@ namespace Reloadly.Airtime.Operation
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(phone));
             Debug.Assert(!string.IsNullOrWhiteSpace(countryCode));
+        }
+
+        public async Task<Page<Operator>> ListCommissionsAsync(OperatorFilter? filter = null)
+        {
+            var uri = BuildUri(filter, Endpoint, PATH_SEGMENT_COMMISSIONS);
+            var req = await CreateGetRequestAsync<Page<Operator>>(uri);
+            return await HttpClient.SendAsync(req);
+        }
+
+        public async Task<Operator> GetCommissionByOperatorIdAsync(long operatorId)
+        {
+            ValidateOperatorId(operatorId);
+            var uri = BuildUri(Endpoint, operatorId.ToString(), PATH_SEGMENT_COMMISSIONS);
+            var req = await CreateGetRequestAsync<Operator>(uri);
+            return await HttpClient.SendAsync(req);
+        }
+
+        public async Task<Operator> GetMNPLookupAsync(string phone, string countryCode)
+        {
+            ValidatePhoneAndCountryCode(phone, countryCode);
+
+            var uri = BuildUri(Endpoint, PATH_SEGMENT_MNP_LOOKUP, PATH_SEGMENT_AUTO_DETECT_PHONE, phone, PATH_SEGMENT_COUNTRIES, countryCode);
+            var req = await CreateGetRequestAsync<Operator>(uri);
+            return await HttpClient.SendAsync(req);
+        }
+
+        public async Task<Operator> PostMNPLookupAsync(string phone, string countryCode)
+        {
+            ValidatePhoneAndCountryCode(phone, countryCode);
+            var uri = BuildUri(PATH_SEGMENT_MNP_LOOKUP, Endpoint);
+
+            var req = await CreatePostRequestAsync<Operator>(uri, new MNPLookupRequest(countryCode, phone));
+            return await HttpClient.SendAsync(req);
         }
     }
 }
