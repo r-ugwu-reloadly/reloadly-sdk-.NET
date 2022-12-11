@@ -13,5 +13,9 @@ namespace Reloadly.Airtime.Operation
         Task<Operator> GetByIdAsync(long operatorId, OperatorFilter? filter = null);
         Task<Page<Operator>> ListAsync(OperatorFilter? filter = null);
         Task<IList<Operator>> ListByCountryCodeAsync(string countryCode, OperatorFilter? filter = null);
+        Task<Page<Operator>> ListCommissionsAsync(OperatorFilter? filter = null);
+        Task<Operator> GetCommissionByOperatorIdAsync(long operatorId);
+        Task<Operator> GetMNPLookupAsync(string phone, string countryCode);
+        Task<Operator> PostMNPLookupAsync(string phone, string countryCode);
     }
 }
